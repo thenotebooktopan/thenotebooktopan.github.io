@@ -1,7 +1,11 @@
 name: Build letters index
 
-# Whenever you upload/change photos in letters/, regenerate letters.json
-# automatically so numbers and dates stay correct. You never run anything by hand.
+# Whenever you upload/change photos in letters/, this:
+#   1. shrinks oversized images automatically (so the site stays fast),
+#   2. regenerates letters.json (numbers + dates),
+#   3. commits the results back.
+# You never run anything by hand. (Pushes made here use GITHUB_TOKEN, which by
+# design does NOT re-trigger this workflow — so there's no infinite loop.)
 
 on:
   push:
@@ -18,6 +22,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install ImageMagick
+        run: sudo apt-get update && sudo apt-get install -y imagemagick
+
+      - name: Shrink oversized images (max 1400px, ~80% quality)
+        run: |
+          shopt -s nullglob nocaseglob
+          for f in letters/*.jpg letters/*.jpeg letters/*.png letters/*.webp; do
+            echo "optimizing $f"
+            mogrify -auto-orient -resize "1400x1400>" -strip "$f"
+            case "${f,,}" in
+              *.jpg|*.jpeg) mogrify -quality 82 "$f" ;;
+              *.webp)       mogrify -quality 82 "$f" ;;
+              *.png)        mogrify -define png:compression-level=9 "$f" ;;
+            esac
+          done
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -29,10 +49,10 @@ jobs:
         run: |
           git config user.name "notebook"
           git config user.email "notebook@users.noreply.github.com"
-          if ! git diff --quiet -- letters/letters.json; then
-            git add letters/letters.json
-            git commit -m "chore: rebuild letters index"
+          git add -A letters/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: optimize images + rebuild letters index"
             git push
           else
-            echo "letters.json already up to date"
+            echo "nothing to update"
           fi
