@@ -186,30 +186,30 @@ body::after {
 }
 
 /* zoom affordance on letter pages */
-.zoom-btn {
+/* expand controls — fixed in the chrome, outside the flipping book */
+.expand-bar {
   position: absolute;
-  top: 12px; left: 50%;
-  transform: translateX(-50%);   /* top-centre, clear of the fold corners */
-  z-index: 5;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid rgba(38,48,106,0.25);
-  border-radius: 999px;
-  background: rgba(251,246,234,0.9);
-  color: var(--ink);
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(10px, 1.5vw, 13px);
-  letter-spacing: 0.05em;
-  cursor: pointer;
-  backdrop-filter: blur(2px);
-  box-shadow: 0 3px 10px rgba(0,0,0,0.18);
-  transition: transform .15s ease, background .15s ease, opacity .2s ease;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  display: flex; gap: 10px;
 }
-.zoom-btn:hover { transform: translateX(-50%) translateY(-1px); background: #fff; }
-/* keep the bubbles out of the way while a page is turning */
-.book.flipping .zoom-btn { opacity: 0; pointer-events: none; }
+.exp-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-width: 7.5rem;          /* equal width so each sits symmetric to the spine */
+  padding: 8px 16px;
+  border: 1px solid rgba(199,154,63,0.5);
+  border-radius: 999px;
+  background: rgba(10,11,24,0.55);
+  color: #e9c977;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(12px, 1.7vw, 15px);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  backdrop-filter: blur(3px);
+  transition: background .2s ease, transform .15s ease;
+}
+.exp-btn:hover { background: rgba(199,154,63,0.18); transform: translateY(-1px); }
 
 /* ---------- Hint + nav ---------- */
 .hint {

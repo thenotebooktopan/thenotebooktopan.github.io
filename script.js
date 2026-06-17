@@ -41,7 +41,6 @@
     draw.className = "page page--soft leaf-left";
     draw.innerHTML = `
       <div class="page-inner">
-        <button class="zoom-btn" data-zoom="${i}" data-kind="drawing" type="button">⤢&nbsp;view</button>
         <img class="page-art" src="${l.drawing}" alt="Drawing for letter ${n}" loading="lazy" />
         ${FRAME}
         <div class="page-tag">
@@ -55,7 +54,6 @@
     letter.className = "page page--soft leaf-right";
     letter.innerHTML = `
       <div class="page-inner">
-        <button class="zoom-btn" data-zoom="${i}" data-kind="letter" type="button">⤢&nbsp;read</button>
         <img class="page-art" src="${l.letter}" alt="Letter ${n}" loading="lazy" />
         ${FRAME}
       </div>`;
@@ -124,13 +122,25 @@
   const hint = document.getElementById("hint");
   const nav = document.getElementById("nav");
   const navLabel = document.getElementById("navLabel");
+  const expandBar = document.getElementById("expandBar");
   nav.hidden = false;
+
+  let currentLetter = -1; // 0-based index of the letter currently open as a spread
 
   function updateNav() {
     const p = pageFlip.getCurrentPageIndex();
     if (p === 0) navLabel.textContent = "the cover";
     else if (p >= totalPages - 1) navLabel.textContent = "the end · for now";
     else navLabel.textContent = `Letter № ${Math.ceil(p / 2)}`;
+
+    // expand bar: only on a real letter spread (not the covers)
+    if (p >= 1 && p <= totalPages - 2) {
+      currentLetter = Math.ceil(p / 2) - 1;
+      expandBar.hidden = false;
+    } else {
+      currentLetter = -1;
+      expandBar.hidden = true;
+    }
   }
 
   pageFlip.on("flip", () => { hint.style.opacity = "0"; updateNav(); setShift(); });
@@ -165,16 +175,13 @@
   }
   function closeReader() { reader.hidden = true; readerImg.src = ""; }
 
-  // open via zoom buttons (stop the page-flip from firing — StPageFlip uses mouse/touch)
-  ["mousedown", "touchstart", "pointerdown"].forEach((type) => {
-    book.addEventListener(type, (e) => {
-      if (e.target.closest(".zoom-btn")) e.stopPropagation();
-    }, true);
+  // expand controls live OUTSIDE the book, so StPageFlip can never intercept them
+  document.getElementById("viewDraw").addEventListener("click", () => {
+    if (currentLetter >= 0) openReader(currentLetter, "drawing");
   });
-  book.addEventListener("click", (e) => {
-    const btn = e.target.closest(".zoom-btn");
-    if (btn) { e.stopPropagation(); openReader(Number(btn.dataset.zoom), btn.dataset.kind); }
-  }, true);
+  document.getElementById("readLetter").addEventListener("click", () => {
+    if (currentLetter >= 0) openReader(currentLetter, "letter");
+  });
 
   document.getElementById("readerClose").addEventListener("click", closeReader);
   document.getElementById("zoomIn").addEventListener("click", () => { scale = Math.min(4, scale + 0.3); applyScale(); });
