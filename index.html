@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>The Notebook to Pan</title>
+  <meta name="description" content="Letters, once in a while." />
+  <link rel="icon" type="image/jpeg" href="assets/pansy.jpg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Tangerine:wght@400;700&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
+
+  <script src="https://unpkg.com/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="stage">
+    <div class="book-wrap">
+      <div id="book" class="book"></div>
+    </div>
+
+    <p class="hint" id="hint">tap the cover to open · drag a corner to turn the page</p>
+
+    <div class="nav" id="nav" hidden>
+      <button class="nav-btn" id="prev" aria-label="Previous page">‹</button>
+      <span class="nav-label" id="navLabel"></span>
+      <button class="nav-btn" id="next" aria-label="Next page">›</button>
+    </div>
+  </main>
+
+  <!-- Fullscreen reader for letters -->
+  <div class="reader" id="reader" hidden>
+    <div class="reader-bar">
+      <span class="reader-title" id="readerTitle"></span>
+      <div class="reader-tools">
+        <button class="reader-btn" id="zoomOut" aria-label="Zoom out">−</button>
+        <button class="reader-btn" id="zoomIn" aria-label="Zoom in">+</button>
+        <button class="reader-btn reader-close" id="readerClose" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="reader-scroll" id="readerScroll">
+      <img class="reader-img" id="readerImg" alt="Letter, full view" />
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

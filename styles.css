@@ -1,0 +1,306 @@
+:root {
+  --ink: #26306a;
+  --ink-soft: #4a4f78;
+  --paper: #fbf6ea;
+  --paper-2: #f4ede0;
+  --gold: #e9b949;
+  --pansy: #6a7fd6;
+  --rose: #e7b3b0;
+  --night-0: #0a0b18;
+  --night-1: #161634;
+  --night-2: #20214a;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--night-0);
+  color: var(--paper);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* ---------- Atmosphere ---------- */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 38%, rgba(106,127,214,0.22), transparent 55%),
+    radial-gradient(80% 70% at 50% 80%, rgba(233,185,73,0.07), transparent 60%),
+    linear-gradient(180deg, var(--night-1) 0%, var(--night-0) 70%);
+  z-index: 0;
+}
+/* grain */
+body::after {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  z-index: 50;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- Stage ---------- */
+.stage {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  align-items: center;       /* vertical centre */
+  justify-content: center;   /* horizontal centre */
+  padding: 16px;
+}
+
+/* ---------- Book (realistic page-flip) ---------- */
+.book-wrap {
+  position: relative;
+  width: min(96vw, 1320px);
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 40px 70px rgba(0,0,0,0.6));
+}
+.book { margin: 0 auto; transition: transform .8s cubic-bezier(.4, 0, .2, 1); }
+
+/* ---------- Cover + back cover ---------- */
+.page--cover { background: #0c0d20; }
+.backcover {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 4%;
+  text-align: center; padding: 0 12%;
+  /* match the royal-purple front cover */
+  background: radial-gradient(85% 65% at 50% 45%, #4a2c7d, #281643 82%), #1c0f30;
+  box-shadow: inset 0 0 0 1px rgba(199,154,63,0.22);
+}
+.backcover span {
+  font-family: "Tangerine", cursive;
+  font-size: clamp(34px, 8vw, 60px);
+  color: var(--gold);
+  opacity: 0.9;
+}
+
+/* ---------- Pages (shared) ---------- */
+.page {
+  background: var(--paper);
+  overflow: hidden;
+  border-radius: 0;
+  -webkit-user-select: none; user-select: none;
+}
+/* round only the outer (opening) edge; spine side stays square */
+.leaf-left,  .cover-back  { border-radius: 16px 3px 3px 16px; }
+.leaf-right, .cover-front { border-radius: 3px 16px 16px 3px; }
+
+/* the full-bleed embroidered cover image */
+.cover-art {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ---------- Gold ornamental frame (Genshin Akademiya cue) ---------- */
+.page-frame {
+  position: absolute;
+  inset: clamp(10px, 2.4%, 22px);
+  z-index: 2;
+  pointer-events: none;
+}
+.page-frame::before {
+  content: "";
+  position: absolute; inset: 0;
+  border: 1.5px solid rgba(199,154,63,0.85);
+  border-radius: 5px;
+}
+.page-frame::after {
+  content: "";
+  position: absolute; inset: 5px;
+  border: 1px solid rgba(199,154,63,0.45);
+  border-radius: 3px;
+}
+.pf-corner {
+  position: absolute;
+  width: clamp(26px, 5%, 46px);
+  height: clamp(26px, 5%, 46px);
+  background: url("assets/corner.svg") center/contain no-repeat;
+}
+.pf-corner.tl { top: -2px; left: -2px; }
+.pf-corner.tr { top: -2px; right: -2px; transform: scaleX(-1); }
+.pf-corner.bl { bottom: -2px; left: -2px; transform: scaleY(-1); }
+.pf-corner.br { bottom: -2px; right: -2px; transform: scale(-1); }
+.pf-crest {
+  position: absolute;
+  top: calc(-1 * clamp(14px, 2.6%, 24px));
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(74px, 18%, 130px);
+  height: clamp(38px, 9%, 64px);
+  background: url("assets/crest.svg") center/contain no-repeat;
+}
+.page--soft {
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.10), rgba(0,0,0,0) 7%, rgba(0,0,0,0) 93%, rgba(0,0,0,0.10)),
+    var(--paper);
+}
+.page-inner {
+  position: relative;
+  width: 100%; height: 100%;
+}
+.page-art {
+  width: 100%; height: 100%;
+  object-fit: contain;   /* default: pad-to-fit (set per-image in JS) */
+  object-position: center;
+  display: block;
+}
+/* near-exact ratio → pad (barely any margin); clearly off-ratio → crop to fill */
+.page-art.fit-pad  { object-fit: contain; }
+.page-art.fit-crop { object-fit: cover; }
+
+/* drawing page caption + letter meta */
+.page-tag {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 10px 18px 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(0deg, rgba(20,16,8,0.30), transparent);
+  color: var(--ink);
+}
+.page-no {
+  font-family: "Cormorant Garamond", serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: clamp(9px, 1.4vw, 13px);
+  color: var(--ink-soft);
+}
+.page-date {
+  font-family: "Caveat", cursive;
+  font-size: clamp(13px, 2vw, 20px);
+  color: var(--ink-soft);
+}
+
+/* zoom affordance on letter pages */
+.zoom-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border: 1px solid rgba(38,48,106,0.25);
+  border-radius: 999px;
+  background: rgba(251,246,234,0.82);
+  color: var(--ink);
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(10px, 1.5vw, 13px);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  backdrop-filter: blur(2px);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+  transition: transform .15s ease, background .15s ease, opacity .2s ease;
+}
+.zoom-btn:hover { transform: translateY(-1px); background: #fff; }
+/* keep the bubbles out of the way while a page is turning */
+.book.flipping .zoom-btn { opacity: 0; pointer-events: none; }
+
+/* ---------- Hint + nav ---------- */
+.hint {
+  position: absolute;
+  bottom: 70px; left: 0; right: 0;
+  z-index: 3;
+  font-family: "Caveat", cursive;
+  font-size: clamp(15px, 2.4vw, 20px);
+  color: rgba(212,210,230,0.55);
+  margin: 0;
+  text-align: center;
+  transition: opacity .6s ease;
+  pointer-events: none;
+}
+.nav {
+  position: absolute;
+  bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex; align-items: center; gap: 18px;
+}
+.nav-label {
+  font-size: clamp(12px, 1.8vw, 15px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(233,201,119,0.72);
+  min-width: 9ch; text-align: center;
+}
+.nav-btn {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(199,154,63,0.5);
+  background: rgba(233,201,119,0.06);
+  color: #e9c977;
+  font-size: 24px; line-height: 1;
+  cursor: pointer;
+  transition: background .2s ease, transform .2s ease;
+}
+.nav-btn:hover { background: rgba(199,154,63,0.18); transform: translateY(-1px); }
+.nav-btn:active { transform: translateY(0); }
+
+/* ---------- Reader (zoom) ---------- */
+.reader {
+  position: fixed; inset: 0;
+  z-index: 100;
+  background: rgba(8,9,18,0.94);
+  backdrop-filter: blur(6px);
+  display: flex; flex-direction: column;
+  animation: fade .25s ease;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.reader-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  flex: 0 0 auto;
+}
+.reader-title {
+  font-size: clamp(12px, 1.8vw, 15px);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(212,210,230,0.7);
+}
+.reader-tools { display: flex; gap: 8px; }
+.reader-btn {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(170,184,236,0.25);
+  background: rgba(255,255,255,0.05);
+  color: var(--paper);
+  font-size: 20px; cursor: pointer;
+  transition: background .2s ease;
+}
+.reader-btn:hover { background: rgba(170,184,236,0.18); }
+.reader-close { border-color: rgba(231,179,176,0.4); }
+.reader-scroll {
+  flex: 1 1 auto;
+  overflow: auto;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 0 16px 28px;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+.reader-scroll.grabbing { cursor: grabbing; }
+.reader-img {
+  width: min(680px, 92vw);
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+  transition: width .18s ease;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+  .hint { padding: 0 24px; }
+  .reader-img { width: 150vw; } /* default a touch zoomed on phones for legibility */
+}

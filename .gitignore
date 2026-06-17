@@ -1,0 +1,11 @@
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# never commit secrets — this project needs none, but just in case
+*.env
+.env*
+secrets*

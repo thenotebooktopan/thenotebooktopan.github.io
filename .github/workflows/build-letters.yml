@@ -1,0 +1,38 @@
+name: Build letters index
+
+# Whenever you upload/change photos in letters/, regenerate letters.json
+# automatically so numbers and dates stay correct. You never run anything by hand.
+
+on:
+  push:
+    paths:
+      - "letters/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Regenerate letters.json
+        run: node generate-letters.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "notebook"
+          git config user.email "notebook@users.noreply.github.com"
+          if ! git diff --quiet -- letters/letters.json; then
+            git add letters/letters.json
+            git commit -m "chore: rebuild letters index"
+            git push
+          else
+            echo "letters.json already up to date"
+          fi
