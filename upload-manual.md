@@ -32,9 +32,14 @@ that ties them together.
     **crops to fill** instead, so you don't get big ugly margins.
   - 👉 Shoot/scan at **Letter size (1:1.3)** and you get the full image with no
     crop and no visible margins.
-- **Size:** anything is fine (it auto-scales). If the photo is huge (3–8 MB),
-  shrink it to ~1200px wide / ~80% quality first — https://squoosh.app does it in
-  seconds. Keeps the site fast.
+- **Size — important for speed:** big photos make the site load slowly for
+  everyone. A phone photo is often 3–8 MB; **shrink each one to roughly
+  1000–1200 px wide and aim for under ~400 KB** before uploading.
+  - Easiest: **https://squoosh.app** — drag your photo in, pull the quality slider
+    down until the size (shown bottom-right) is ~300–400 KB, download.
+  - On iPhone: the **Image Size** shortcut/app, or email it to yourself at
+    "Medium" size.
+  - Rule of thumb: if a photo is over ~1 MB, shrink it first.
 
 ## Step 2 — Name them
 
@@ -52,26 +57,36 @@ Use the **next number** in line, then `-drawing` or `-letter`:
 > You do **not** type the letter number or the date. The number comes from the
 > order, and the date comes from the photo — both are filled in automatically.
 
-## Step 3 — Put them in the `letters/` folder
+## Step 3 — Upload them on github.com
 
-This depends on where the site lives.
+**You never use git or a terminal.** Everything happens on the GitHub website,
+and it works the same on your phone, iPad, or laptop. You just need to be
+**signed in** to GitHub (the account that's in the `thenotebooktopan` org).
 
-### A) Online — on GitHub (your phone, iPad, or laptop)
-1. Open your repository in any browser.
-2. Click into the **`letters`** folder.
-3. Click **Add file → Upload files**.
-4. **Drag both photos** in (or tap to choose them).
-5. Scroll down, click **Commit changes**.
-6. Wait ~30–60 seconds. The site rebuilds itself and your new letter appears.
-   *(A built-in helper renumbers and dates everything for you — nothing else to do.)*
+The site lives here:
+> **Repo:** https://github.com/thenotebooktopan/thenotebooktopan.github.io
+> **Letters folder:** https://github.com/thenotebooktopan/thenotebooktopan.github.io/tree/main/letters
 
-### B) On your own computer (local preview)
+### Upload a new letter
+1. Open the **upload page** directly (bookmark this — it's the whole job):
+   **https://github.com/thenotebooktopan/thenotebooktopan.github.io/upload/main/letters**
+2. **Drag your two photos** onto the page (or tap **"choose your files"**).
+   Make sure they're named like `004-drawing.jpg` and `004-letter.jpg`.
+3. Scroll down to **Commit changes**. Leave **"Commit directly to the `main`
+   branch"** selected.
+4. Tap the green **Commit changes** button.
+5. Wait ~30–60 seconds. A robot (the built-in Action) automatically numbers and
+   dates your letter and rebuilds the site. Refresh
+   **https://thenotebooktopan.github.io/** and your new page is there.
+
+That's it. No code, no commands — drag two photos in, tap Commit. 📲
+
+### (Optional) On your own computer
+If you ever work on a laptop with the project downloaded:
 1. Drop both photos into the `letters/` folder.
-2. In a terminal, from the project folder, run:
-   ```bash
-   node generate-letters.mjs
-   ```
-3. Refresh the page in your browser. Done.
+2. Run `node generate-letters.mjs` in a terminal.
+3. Refresh your local preview. (When uploading online instead, the robot does
+   this step for you.)
 
 ---
 

@@ -42,7 +42,7 @@
     draw.innerHTML = `
       <div class="page-inner">
         <button class="zoom-btn" data-zoom="${i}" data-kind="drawing" type="button">⤢&nbsp;view</button>
-        <img class="page-art" src="${l.drawing}" alt="Drawing for letter ${n}" />
+        <img class="page-art" src="${l.drawing}" alt="Drawing for letter ${n}" loading="lazy" />
         ${FRAME}
         <div class="page-tag">
           <span class="page-no">Letter&nbsp;№&nbsp;${n}</span>
@@ -56,7 +56,7 @@
     letter.innerHTML = `
       <div class="page-inner">
         <button class="zoom-btn" data-zoom="${i}" data-kind="letter" type="button">⤢&nbsp;read</button>
-        <img class="page-art" src="${l.letter}" alt="Letter ${n}" />
+        <img class="page-art" src="${l.letter}" alt="Letter ${n}" loading="lazy" />
         ${FRAME}
       </div>`;
     book.appendChild(letter);
