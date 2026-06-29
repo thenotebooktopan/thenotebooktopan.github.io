@@ -50,10 +50,8 @@ export default {
     const tz = cf.timezone || body.tz || "?";
     const coords = cf.latitude && cf.longitude ? `${cf.latitude},${cf.longitude}` : "";
     const maps = coords ? `https://maps.google.com/?q=${coords}` : "";
-    const nick = String(body.nick || "").slice(0, 40);
     const tag = dev ? dev.replace(/-/g, "").slice(0, 4) : "";
-    const name =
-      (nick ? nick + " — " : "") + deviceName(body.ua) + (tag ? ` · #${tag}` : "");
+    const name = deviceName(body.ua) + (tag ? ` · #${tag}` : "");
 
     const now = new Date();
     let local = now.toISOString();
