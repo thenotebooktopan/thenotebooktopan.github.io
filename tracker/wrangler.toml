@@ -1,0 +1,17 @@
+name = "notebook-pulse"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# KV stores the device ids you've muted via the Telegram button.
+# Create it once, then paste the printed id below:
+#   npx wrangler@latest kv namespace create IGNORE
+[[kv_namespaces]]
+binding = "IGNORE"
+id = "98e38510a4ed49bab94d178df82a804c"
+
+# Secrets are NOT stored here. Set them with:
+#   npx wrangler@latest secret put TELEGRAM_BOT_TOKEN
+#   npx wrangler@latest secret put TELEGRAM_CHAT_ID
+#   npx wrangler@latest secret put GITHUB_TOKEN
+#   npx wrangler@latest secret put GIST_ID
+#   npx wrangler@latest secret put TG_SECRET   # optional webhook secret

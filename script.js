@@ -1,6 +1,74 @@
 (async function () {
   "use strict";
 
+  // ---- Open pulse: privately ping the relay when & where this is opened ----
+  // No secrets here — the Worker does geolocation, logging and the alert.
+  // Fires once per browser session (a reload/rotate won't double-count;
+  // closing and reopening later counts as a fresh read).
+  (function pulse() {
+    const PULSE_URL = "https://notebook-pulse.kylikh.workers.dev"; // Cloudflare Worker relay
+    if (!PULSE_URL) return;
+
+    // Self-exclude: open the site ONCE on each of your own devices with #me
+    // (e.g. .../#me) to stop counting your own checks. Use #me-off to re-enable.
+    try {
+      const q = (location.hash + " " + location.search).toLowerCase();
+      if (q.includes("me-off") || q.includes("me=0")) {
+        localStorage.removeItem("np_ignore");
+      } else if (q.includes("#me") || q.includes("me=1")) {
+        localStorage.setItem("np_ignore", "1");
+      }
+      if (localStorage.getItem("np_ignore")) return; // it's me — don't ping
+    } catch (_) {}
+
+    try {
+      if (sessionStorage.getItem("np_pulsed")) return;
+      sessionStorage.setItem("np_pulsed", "1");
+    } catch (_) { /* private mode — still ping */ }
+
+    // stable per-browser id so you can mute your own devices from Telegram
+    let dev = "";
+    try {
+      dev = localStorage.getItem("np_dev") || "";
+      if (!dev) {
+        dev = (crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : String(Date.now()) + "-" + Math.random().toString(36).slice(2);
+        localStorage.setItem("np_dev", dev);
+      }
+    } catch (_) {}
+
+    // optional self-naming: open your own phone once with #name=Kyaw so its
+    // Telegram alerts read "Kyaw — iPhone…" and never look like hers
+    let nick = "";
+    try {
+      nick = localStorage.getItem("np_nick") || "";
+      const m = (location.hash + " " + location.search).match(/name=([^&\s#]+)/i);
+      if (m) { nick = decodeURIComponent(m[1]); localStorage.setItem("np_nick", nick); }
+    } catch (_) {}
+
+    const payload = JSON.stringify({
+      t: new Date().toISOString(),
+      tz: (Intl.DateTimeFormat().resolvedOptions().timeZone) || "",
+      ref: document.referrer || "",
+      lang: navigator.language || "",
+      ua: navigator.userAgent || "",
+      dev: dev,
+      nick: nick,
+    });
+    // text/plain keeps it a "simple" request → no CORS preflight, works via sendBeacon
+    try {
+      const blob = new Blob([payload], { type: "text/plain" });
+      if (navigator.sendBeacon && navigator.sendBeacon(PULSE_URL, blob)) return;
+    } catch (_) {}
+    try {
+      fetch(PULSE_URL, {
+        method: "POST", body: payload, keepalive: true, mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+      });
+    } catch (_) {}
+  })();
+
   const MONTHS = ["January","February","March","April","May","June","July",
                   "August","September","October","November","December"];
   const fmtDate = (iso) => {
@@ -69,14 +137,23 @@
   const totalPages = book.children.length;
 
   // ---- Init the page-flip engine ----
+  // size the book to fit the viewport, leaving room for the top bubbles + bottom text
+  const RATIO = 650 / 500;                       // page height / width = 1.3
+  const availH = Math.max(300, window.innerHeight - 140);
+  const availW = window.innerWidth * 0.94;
+  let pw = availH / RATIO;                        // page width if height-bound
+  if (pw * 2 > availW) pw = availW / 2;           // otherwise width-bound
+  pw = Math.min(pw, 500);                         // never bigger than before
+  const ph = pw * RATIO;
+
   const pageFlip = new St.PageFlip(book, {
     width: 500,
     height: 650,            // single page ratio 1000:1300 (portrait)
     size: "stretch",
     minWidth: 180,
-    maxWidth: 500,          // smaller so the book doesn't fill the page
+    maxWidth: Math.round(pw),
     minHeight: 240,
-    maxHeight: 680,
+    maxHeight: Math.round(ph),
     showCover: true,
     usePortrait: false,     // keep the two-page spread on every device
     mobileScrollSupport: false,
@@ -119,7 +196,6 @@
   setShift();
 
   // ---- Hint + nav ----
-  const hint = document.getElementById("hint");
   const nav = document.getElementById("nav");
   const navLabel = document.getElementById("navLabel");
   const expandBar = document.getElementById("expandBar");
@@ -143,7 +219,7 @@
     }
   }
 
-  pageFlip.on("flip", () => { hint.style.opacity = "0"; updateNav(); setShift(); });
+  pageFlip.on("flip", () => { updateNav(); setShift(); });
   updateNav();
 
   document.getElementById("prev").addEventListener("click", () => pageFlip.flipPrev());
@@ -207,4 +283,16 @@
     readerScroll.scrollTop = st - (e.clientY - sy);
   });
   window.addEventListener("pointerup", () => { panning = false; readerScroll.classList.remove("grabbing"); });
+
+  // re-fit the book if the window changes size meaningfully (e.g. phone rotation)
+  const iw = window.innerWidth, ih = window.innerHeight;
+  let resizeT;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(() => {
+      if (Math.abs(window.innerWidth - iw) > 90 || Math.abs(window.innerHeight - ih) > 90) {
+        location.reload();
+      }
+    }, 400);
+  });
 })();

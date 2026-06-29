@@ -212,18 +212,6 @@ body::after {
 .exp-btn:hover { background: rgba(199,154,63,0.18); transform: translateY(-1px); }
 
 /* ---------- Hint + nav ---------- */
-.hint {
-  position: absolute;
-  bottom: 70px; left: 0; right: 0;
-  z-index: 3;
-  font-family: "Caveat", cursive;
-  font-size: clamp(15px, 2.4vw, 20px);
-  color: rgba(212,210,230,0.55);
-  margin: 0;
-  text-align: center;
-  transition: opacity .6s ease;
-  pointer-events: none;
-}
 .nav {
   position: absolute;
   bottom: 18px; left: 50%;
